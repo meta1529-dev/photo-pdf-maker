@@ -3,14 +3,59 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>写真PDFメーカー</title>
+    <title>画像をPDFに変換・結合 - 写真PDFメーカー</title>
+    <meta
+      name="description"
+      content="JPG、PNG、WebPなどの画像をブラウザ内で並べ替えてPDFに変換できる無料ツールです。写真やスキャン画像を端末内で処理してPDF保存できます。"
+    />
+    <meta name="robots" content="index,follow" />
+    <meta name="application-name" content="写真PDFメーカー" />
+    <meta name="theme-color" content="#157f78" />
+    <link rel="canonical" href="https://meta1529-dev.github.io/photo-pdf-maker/" />
+    <link rel="manifest" href="./site.webmanifest" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="写真PDFメーカー" />
+    <meta property="og:title" content="画像をPDFに変換・結合 - 写真PDFメーカー" />
+    <meta
+      property="og:description"
+      content="画像を追加して順番や向きを整え、ブラウザ内でPDFとして保存できます。"
+    />
+    <meta property="og:url" content="https://meta1529-dev.github.io/photo-pdf-maker/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="画像をPDFに変換・結合 - 写真PDFメーカー" />
+    <meta
+      name="twitter:description"
+      content="写真やスキャン画像をブラウザ内でPDFにまとめる無料ツールです。"
+    />
     <link rel="stylesheet" href="./styles.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "写真PDFメーカー",
+        "alternateName": "Photo PDF Maker",
+        "url": "https://meta1529-dev.github.io/photo-pdf-maker/",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any",
+        "inLanguage": "ja",
+        "isAccessibleForFree": true,
+        "description": "JPG、PNG、WebPなどの画像をブラウザ内で並べ替えてPDFに変換できる無料ツールです。",
+        "featureList": [
+          "画像をPDFに変換",
+          "複数画像の結合",
+          "画像の並べ替え",
+          "画像の回転",
+          "A4 PDF作成"
+        ]
+      }
+    </script>
   </head>
   <body>
     <div class="app-shell">
       <header class="topbar">
         <div>
-          <h1>写真PDFメーカー</h1>
+          <h1>画像PDFメーカー</h1>
           <p id="summary" class="summary">0枚</p>
         </div>
         <div class="top-actions">
@@ -101,6 +146,16 @@
         </aside>
       </main>
     </div>
+
+    <section class="about-app" aria-labelledby="aboutTitle">
+      <div class="about-inner">
+        <h2 id="aboutTitle">画像をPDFにまとめる無料ブラウザツール</h2>
+        <p>
+          写真、スキャン画像、vFlat Scanなどで書き出した画像を選び、順番を整えてPDFとして保存できます。
+          画像はサーバーへ送らず、ブラウザ内で処理します。
+        </p>
+      </div>
+    </section>
 
     <script src="./app.js"></script>
   </body>
