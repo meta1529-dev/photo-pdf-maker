@@ -6,12 +6,13 @@
     <title>画像をPDFに変換・結合 - 写真PDFメーカー</title>
     <meta
       name="description"
-      content="JPG、PNG、WebPなどの画像をブラウザ内で並べ替えてPDFに変換できる無料ツールです。写真やスキャン画像を端末内で処理してPDF保存できます。"
+      content="JPG、PNG、WebPなどの画像をブラウザ内で並べ替えてPDFに変換できる無料ツールです。紙の自動検出や文字補正を端末内で行い、PDF保存できます。"
     />
     <meta name="robots" content="index,follow" />
     <meta name="application-name" content="写真PDFメーカー" />
     <meta name="theme-color" content="#157f78" />
     <link rel="canonical" href="https://meta1529-dev.github.io/photo-pdf-maker/" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23157f78'/%3E%3Cpath d='M20 12h20l8 8v32H20z' fill='white'/%3E%3Cpath d='M40 12v10h10' fill='%23d9f4ef'/%3E%3Cpath d='M25 34h18M25 40h18M25 46h12' stroke='%23157f78' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" />
     <link rel="manifest" href="./site.webmanifest" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ja_JP" />
@@ -46,6 +47,7 @@
           "複数画像の結合",
           "画像の並べ替え",
           "画像の回転",
+          "スキャン補正",
           "A4 PDF作成"
         ]
       }
@@ -133,6 +135,16 @@
             </select>
           </div>
 
+          <div class="panel-section">
+            <label class="field-label" for="scanMode">スキャン補正</label>
+            <select id="scanMode" class="select-input">
+              <option value="scan" selected>紙を検出</option>
+              <option value="clean">文字くっきり</option>
+              <option value="off">なし</option>
+            </select>
+            <button id="applyScanButton" class="secondary-button" type="button" disabled>全画像に適用</button>
+          </div>
+
           <div class="selected-box">
             <p id="selectedName" class="selected-name">未選択</p>
             <p id="selectedMeta" class="selected-meta">画像を追加できます</p>
@@ -151,7 +163,7 @@
       <div class="about-inner">
         <h2 id="aboutTitle">画像をPDFにまとめる無料ブラウザツール</h2>
         <p>
-          写真やスキャン画像を選び、順番を整えてPDFとして保存できます。
+          写真やスキャン画像を選び、紙の傾きや文字の見やすさを整えてPDFとして保存できます。
           画像はサーバーへ送らず、ブラウザ内で処理します。著作権や利用許諾を確認した画像で使ってください。
         </p>
         <div class="seo-section" aria-label="このツールでできること">
@@ -160,7 +172,7 @@
             <ul>
               <li>スマホで撮った書類写真を1つのPDFにまとめる</li>
               <li>JPG、PNG、WebPなどの画像をPDFに変換する</li>
-              <li>スキャン画像を並べ替えてA4 PDFとして保存する</li>
+              <li>スキャン画像を補正してA4 PDFとして保存する</li>
               <li>画像をアップロードせず、端末内でPDF化する</li>
             </ul>
           </section>
@@ -168,7 +180,7 @@
             <h3>使い方</h3>
             <ol>
               <li>画像を追加します。</li>
-              <li>必要に応じて順番、向き、余白、画質を調整します。</li>
+              <li>必要に応じて順番、向き、スキャン補正、余白、画質を調整します。</li>
               <li>PDFを作成して保存します。</li>
             </ol>
           </section>
@@ -191,6 +203,10 @@
             <article>
               <h4>対応している画像形式は？</h4>
               <p>ブラウザが読み込めるJPG、PNG、WebPなどの画像を利用できます。</p>
+            </article>
+            <article>
+              <h4>スキャン補正はどこで行われますか？</h4>
+              <p>紙の検出、傾き補正、文字補正はブラウザ内で行われます。画像は外部サーバーへ送信されません。</p>
             </article>
           </div>
         </section>
