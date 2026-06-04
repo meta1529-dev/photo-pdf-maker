@@ -88,6 +88,7 @@ h1 {
 .create-button,
 .empty-add,
 .icon-button,
+.secondary-button,
 .thumb-tool {
   min-height: 40px;
   display: inline-flex;
@@ -114,6 +115,7 @@ h1 {
 
 .primary-button:hover,
 .create-button:hover,
+.secondary-button:hover,
 .empty-add:hover {
   background: var(--accent-strong);
 }
@@ -122,6 +124,7 @@ h1 {
 .create-button:active,
 .empty-add:active,
 .icon-button:active,
+.secondary-button:active,
 .thumb-tool:active {
   transform: translateY(1px);
 }
@@ -337,6 +340,16 @@ button:focus-visible {
 .slider {
   width: 100%;
   accent-color: var(--accent);
+}
+
+.secondary-button {
+  width: 100%;
+  min-height: 38px;
+  padding: 0 12px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 760;
 }
 
 .selected-box {
