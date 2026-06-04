@@ -1,7 +1,7 @@
 {
   "name": "写真PDFメーカー",
   "short_name": "写真PDF",
-  "description": "画像をブラウザ内でPDFに変換・結合できる無料ツールです。",
+  "description": "画像をブラウザ内で補正し、PDFに変換・結合できる無料ツールです。",
   "start_url": "/photo-pdf-maker/",
   "display": "standalone",
   "background_color": "#f7f8fa",
