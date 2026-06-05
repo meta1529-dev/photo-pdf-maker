@@ -6,7 +6,7 @@
     <title>画像をPDFに変換・結合 - 写真PDFメーカー</title>
     <meta
       name="description"
-      content="JPG、PNG、WebPなどの画像をブラウザ内で並べ替えてPDFに変換できる無料ツールです。紙の自動検出や文字補正を端末内で行い、PDF保存できます。"
+      content="JPG、PNG、WebPなどの画像をブラウザ内で一覧表示し、青い枠で範囲を選んでスキャン補正してからPDF保存できます。"
     />
     <meta name="robots" content="index,follow" />
     <meta name="application-name" content="写真PDFメーカー" />
@@ -20,14 +20,14 @@
     <meta property="og:title" content="画像をPDFに変換・結合 - 写真PDFメーカー" />
     <meta
       property="og:description"
-      content="画像を追加して順番や向きを整え、ブラウザ内でPDFとして保存できます。"
+      content="画像を一覧で確認し、スキャン範囲を青い枠で選んでからPDFとして保存できます。"
     />
     <meta property="og:url" content="https://meta1529-dev.github.io/photo-pdf-maker/" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="画像をPDFに変換・結合 - 写真PDFメーカー" />
     <meta
       name="twitter:description"
-      content="写真やスキャン画像をブラウザ内でPDFにまとめる無料ツールです。"
+      content="写真やスキャン画像を一覧化し、青い枠で範囲を選んでPDFにまとめる無料ツールです。"
     />
     <link rel="stylesheet" href="./styles.css" />
     <script type="application/ld+json">
@@ -47,6 +47,7 @@
           "複数画像の結合",
           "画像の並べ替え",
           "画像の回転",
+          "青い枠でスキャン範囲を選択",
           "スキャン補正",
           "A4 PDF作成"
         ]
@@ -69,6 +70,7 @@
             画像を追加
           </button>
           <input id="fileInput" type="file" accept="image/*" multiple hidden />
+          <input id="scanInput" type="file" accept="image/*" capture="environment" hidden />
         </div>
       </header>
 
@@ -136,13 +138,9 @@
           </div>
 
           <div class="panel-section">
-            <label class="field-label" for="scanMode">スキャン補正</label>
-            <select id="scanMode" class="select-input">
-              <option value="scan" selected>紙を検出</option>
-              <option value="clean">文字くっきり</option>
-              <option value="off">なし</option>
-            </select>
-            <button id="applyScanButton" class="secondary-button" type="button" disabled>全画像に適用</button>
+            <span class="field-label">スキャン</span>
+            <button id="scanSelectedButton" class="secondary-button" type="button" disabled>スキャンする</button>
+            <button id="applyScanButton" class="quiet-button" type="button" disabled>全画像を自動スキャン</button>
           </div>
 
           <div class="selected-box">
@@ -159,11 +157,54 @@
       </main>
     </div>
 
+    <div id="addDialog" class="add-dialog" role="dialog" aria-modal="true" aria-labelledby="addDialogTitle" hidden>
+      <div class="add-sheet">
+        <header class="add-header">
+          <h2 id="addDialogTitle">画像を追加</h2>
+          <button id="addCloseButton" class="icon-button muted" type="button" title="閉じる" aria-label="閉じる">
+            <span aria-hidden="true">×</span>
+          </button>
+        </header>
+        <div class="add-options">
+          <button id="scanCaptureButton" class="add-option-button" type="button">スキャンする</button>
+          <button id="chooseFilesButton" class="add-option-button" type="button">写真・ファイルを選択</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="scanDialog" class="scan-dialog" role="dialog" aria-modal="true" aria-labelledby="scanTitle" hidden>
+      <div class="scan-editor">
+        <header class="scan-header">
+          <div>
+            <h2 id="scanTitle">スキャン</h2>
+            <p id="scanFileName" class="scan-file-name">未選択</p>
+          </div>
+          <button id="scanCloseButton" class="icon-button muted" type="button" title="閉じる" aria-label="閉じる">
+            <span aria-hidden="true">×</span>
+          </button>
+        </header>
+        <div class="scan-body">
+          <div class="scan-stage">
+            <div class="scan-canvas-wrap">
+              <canvas id="scanCanvas" class="scan-canvas"></canvas>
+              <svg id="scanOverlay" class="scan-overlay" aria-hidden="true"></svg>
+            </div>
+          </div>
+          <aside class="scan-panel">
+            <button id="scanAutoButton" class="quiet-button" type="button">自動検出</button>
+            <button id="scanResetButton" class="quiet-button" type="button">全体を選択</button>
+            <button id="scanApplyButton" class="create-button" type="button">スキャンする</button>
+            <button id="scanCancelButton" class="quiet-button" type="button">キャンセル</button>
+          </aside>
+        </div>
+      </div>
+    </div>
+
     <section class="about-app" aria-labelledby="aboutTitle">
       <div class="about-inner">
         <h2 id="aboutTitle">画像をPDFにまとめる無料ブラウザツール</h2>
         <p>
-          写真やスキャン画像を選び、紙の傾きや文字の見やすさを整えてPDFとして保存できます。
+          写真やスキャン画像を一覧で確認し、青い枠で範囲を選んでPDFとして保存できます。
           画像はサーバーへ送らず、ブラウザ内で処理します。著作権や利用許諾を確認した画像で使ってください。
         </p>
         <div class="seo-section" aria-label="このツールでできること">
@@ -172,7 +213,7 @@
             <ul>
               <li>スマホで撮った書類写真を1つのPDFにまとめる</li>
               <li>JPG、PNG、WebPなどの画像をPDFに変換する</li>
-              <li>スキャン画像を補正してA4 PDFとして保存する</li>
+              <li>青い枠でスキャン範囲を選び、A4 PDFとして保存する</li>
               <li>画像をアップロードせず、端末内でPDF化する</li>
             </ul>
           </section>
@@ -180,7 +221,7 @@
             <h3>使い方</h3>
             <ol>
               <li>画像を追加します。</li>
-              <li>必要に応じて順番、向き、スキャン補正、余白、画質を調整します。</li>
+              <li>必要に応じて順番、向き、スキャン範囲、余白、画質を調整します。</li>
               <li>PDFを作成して保存します。</li>
             </ol>
           </section>
@@ -205,8 +246,8 @@
               <p>ブラウザが読み込めるJPG、PNG、WebPなどの画像を利用できます。</p>
             </article>
             <article>
-              <h4>スキャン補正はどこで行われますか？</h4>
-              <p>紙の検出、傾き補正、文字補正はブラウザ内で行われます。画像は外部サーバーへ送信されません。</p>
+              <h4>スキャン処理はどこで行われますか？</h4>
+              <p>範囲選択、傾き補正、文字補正はブラウザ内で行われます。画像は外部サーバーへ送信されません。</p>
             </article>
           </div>
         </section>
