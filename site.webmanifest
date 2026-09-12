@@ -1,10 +1,10 @@
 {
-  "name": "写真PDFメーカー",
-  "short_name": "写真PDF",
-  "description": "画像を一覧表示し、青い枠でスキャン範囲を選んでPDFに変換・結合できる無料ツールです。",
+  "name": "Scanflow | 写真PDFメーカー",
+  "short_name": "Scanflow",
+  "description": "写真を順番どおりにPDFへまとめ、iPhone・iPadからそのまま保存・共有できる無料ツールです。",
   "start_url": "/photo-pdf-maker/",
   "display": "standalone",
-  "background_color": "#f7f8fa",
-  "theme_color": "#157f78",
+  "background_color": "#f4f4fb",
+  "theme_color": "#17152d",
   "lang": "ja"
 }
