@@ -3,14 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>画像をPDFに変換・結合 - 写真PDFメーカー</title>
+    <title>Scanflow — 写真を順番どおりのPDFに</title>
     <meta
       name="description"
       content="JPG、PNG、WebPなどの画像をブラウザ内で一覧表示し、青い枠で範囲を選んでスキャン補正してからPDF保存できます。"
     />
     <meta name="robots" content="index,follow" />
     <meta name="application-name" content="写真PDFメーカー" />
-    <meta name="theme-color" content="#157f78" />
+    <meta name="theme-color" content="#17152d" />
     <link rel="canonical" href="https://meta1529-dev.github.io/photo-pdf-maker/" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23157f78'/%3E%3Cpath d='M20 12h20l8 8v32H20z' fill='white'/%3E%3Cpath d='M40 12v10h10' fill='%23d9f4ef'/%3E%3Cpath d='M25 34h18M25 40h18M25 46h12' stroke='%23157f78' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" />
     <link rel="manifest" href="./site.webmanifest" />
@@ -58,7 +58,13 @@
     <div class="app-shell">
       <header class="topbar">
         <div>
-          <h1>画像PDFメーカー</h1>
+          <div class="brand-lockup">
+            <span class="brand-mark" aria-hidden="true">✦</span>
+            <div>
+              <h1>Scanflow</h1>
+              <p class="brand-subtitle">写真を、順番どおりのPDFへ</p>
+            </div>
+          </div>
           <p id="summary" class="summary">0枚</p>
         </div>
         <div class="top-actions">
@@ -77,10 +83,20 @@
       <main class="workspace">
         <section id="dropZone" class="image-area" aria-label="画像リスト">
           <div id="emptyState" class="empty-state">
-            <button id="emptyAddButton" class="empty-add" type="button">
-              <span aria-hidden="true">＋</span>
-              画像を追加
-            </button>
+            <div class="empty-content">
+              <span class="empty-kicker">PRIVATE · ON DEVICE</span>
+              <h2>ページをまとめよう</h2>
+              <p>写真を追加すると、画面に見えている順番のままPDFになります。</p>
+              <button id="emptyAddButton" class="empty-add" type="button">
+                <span aria-hidden="true">＋</span>
+                画像を追加
+              </button>
+              <div class="empty-points" aria-label="特徴">
+                <span class="empty-point">端末内で処理</span>
+                <span class="empty-point">順番を調整</span>
+                <span class="empty-point">すぐ保存</span>
+              </div>
+            </div>
           </div>
           <div id="imageGrid" class="image-grid" aria-live="polite"></div>
         </section>
@@ -89,6 +105,22 @@
           <div class="panel-section">
             <label class="field-label" for="fileName">ファイル名</label>
             <input id="fileName" class="text-input" type="text" value="textbook.pdf" spellcheck="false" />
+          </div>
+
+          <div class="panel-section order-section">
+            <div class="field-row">
+              <label class="field-label" for="orderMode">並び順</label>
+              <span class="field-value">結合順</span>
+            </div>
+            <select id="orderMode" class="select-input">
+              <option value="name" selected>ファイル名順（自然）</option>
+              <option value="import">追加した順（保持）</option>
+              <option value="date-desc">撮影日時が新しい順</option>
+              <option value="date-asc">撮影日時が古い順</option>
+              <option value="manual">現在の順番</option>
+            </select>
+            <button id="reverseOrderButton" class="quiet-button" type="button">順番を反転</button>
+            <p class="field-hint">結合は左→右・上→下の順です。写真アプリが順番を変えて渡しても、ここで整えられます。</p>
           </div>
 
           <div class="panel-section">
@@ -149,9 +181,20 @@
           </div>
 
           <button id="createPdfButton" class="create-button" type="button" disabled>
-            <span aria-hidden="true">↓</span>
-            PDFを作成
+            <span aria-hidden="true">✦</span>
+            PDFを作成・保存
           </button>
+          <div id="resultCard" class="result-card" hidden>
+            <div class="result-heading">
+              <span class="result-icon" aria-hidden="true">✓</span>
+              <div>
+                <p class="result-title">PDFの準備ができました</p>
+                <p id="resultMeta" class="result-meta"></p>
+              </div>
+            </div>
+            <button id="savePdfButton" class="save-button" type="button">ファイルに保存・共有</button>
+            <p class="field-hint">iPhone／iPadでは共有シートから「ファイルに保存」を選べます。</p>
+          </div>
           <p id="status" class="status" role="status">待機中</p>
         </aside>
       </main>
@@ -273,3 +316,4 @@
     <script src="./app.js"></script>
   </body>
 </html>
+
