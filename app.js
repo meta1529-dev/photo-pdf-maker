@@ -143,6 +143,11 @@
       ...state.items.map((item, index) => createThumbCard(item, index)),
     );
 
+    renderSelection();
+  }
+
+  function renderSelection() {
+    const imageCount = state.items.length;
     const selected = state.items.find((item) => item.id === state.selectedId);
     const selectedIndex = selected ? state.items.indexOf(selected) : -1;
     elements.scanSelectedButton.disabled = state.busy || !selected;
@@ -162,17 +167,37 @@
     }
   }
 
+  // Update selection in place so thumbnail nodes survive (keeps dblclick and focus working).
+  function selectItem(id) {
+    if (state.selectedId === id) return;
+    state.selectedId = id;
+    elements.imageGrid.querySelectorAll(".thumb-card").forEach((card) => {
+      const isSelected = card.dataset.id === id;
+      card.classList.toggle("is-selected", isSelected);
+      card.setAttribute("aria-pressed", String(isSelected));
+    });
+    renderSelection();
+  }
+
   function createThumbCard(item, index) {
     const card = document.createElement("article");
     card.className = "thumb-card";
     card.draggable = !state.busy;
     card.dataset.id = item.id;
     card.dataset.order = String(index + 1);
-    if (item.id === state.selectedId) card.classList.add("is-selected");
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-label", `${index + 1}枚目: ${item.originalFile.name}`);
+    const isSelected = item.id === state.selectedId;
+    card.classList.toggle("is-selected", isSelected);
+    card.setAttribute("aria-pressed", String(isSelected));
 
-    card.addEventListener("click", () => {
-      state.selectedId = item.id;
-      render();
+    card.addEventListener("click", () => selectItem(item.id));
+    card.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        selectItem(item.id);
+      }
     });
 
     card.addEventListener("dragstart", (event) => {

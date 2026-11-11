@@ -288,6 +288,13 @@ h1::before {
 
 .thumb-card:hover .thumb-image-wrap { border-color: var(--line-strong); }
 
+.thumb-card:focus-visible { outline: none; }
+
+.thumb-card:focus-visible .thumb-image-wrap {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
 .thumb-card.is-selected .thumb-image-wrap {
   border-color: var(--ink);
   box-shadow: 0 0 0 1px var(--ink);
