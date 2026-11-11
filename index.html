@@ -10,7 +10,7 @@
     />
     <meta name="robots" content="index,follow" />
     <meta name="application-name" content="写真PDFメーカー" />
-    <meta name="theme-color" content="#17152d" />
+    <meta name="theme-color" content="#f5f4f0" />
     <link rel="canonical" href="https://meta1529-dev.github.io/photo-pdf-maker/" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23157f78'/%3E%3Cpath d='M20 12h20l8 8v32H20z' fill='white'/%3E%3Cpath d='M40 12v10h10' fill='%23d9f4ef'/%3E%3Cpath d='M25 34h18M25 40h18M25 46h12' stroke='%23157f78' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" />
     <link rel="manifest" href="./site.webmanifest" />
@@ -57,24 +57,15 @@
   <body>
     <div class="app-shell">
       <header class="topbar">
-        <div>
-          <div class="brand-lockup">
-            <span class="brand-mark" aria-hidden="true">✦</span>
-            <div>
-              <h1>Scanflow</h1>
-              <p class="brand-subtitle">写真を、順番どおりのPDFへ</p>
-            </div>
-          </div>
+        <div class="brand">
+          <h1>Scanflow</h1>
           <p id="summary" class="summary">0枚</p>
         </div>
         <div class="top-actions">
-          <button id="clearButton" class="icon-button muted" type="button" title="すべて削除" aria-label="すべて削除" disabled>
-            <span aria-hidden="true">×</span>
+          <button id="clearButton" class="ghost-button" type="button" title="すべて削除" aria-label="すべて削除" disabled>
+            クリア
           </button>
-          <button id="addButton" class="primary-button" type="button">
-            <span aria-hidden="true">＋</span>
-            画像を追加
-          </button>
+          <button id="addButton" class="primary-button" type="button">画像を追加</button>
           <input id="fileInput" type="file" accept="image/*" multiple hidden />
           <input id="scanInput" type="file" accept="image/*" capture="environment" hidden />
         </div>
@@ -84,118 +75,132 @@
         <section id="dropZone" class="image-area" aria-label="画像リスト">
           <div id="emptyState" class="empty-state">
             <div class="empty-content">
-              <span class="empty-kicker">PRIVATE · ON DEVICE</span>
-              <h2>ページをまとめよう</h2>
-              <p>写真を追加すると、画面に見えている順番のままPDFになります。</p>
-              <button id="emptyAddButton" class="empty-add" type="button">
-                <span aria-hidden="true">＋</span>
-                画像を追加
-              </button>
-              <div class="empty-points" aria-label="特徴">
-                <span class="empty-point">端末内で処理</span>
-                <span class="empty-point">順番を調整</span>
-                <span class="empty-point">すぐ保存</span>
-              </div>
+              <svg class="empty-icon" viewBox="0 0 48 48" aria-hidden="true">
+                <path d="M14 6h15l9 9v27H14z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                <path d="M29 6v9h9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                <path d="M10 12v32h22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" opacity=".45" />
+              </svg>
+              <h2>写真を1つのPDFに</h2>
+              <p>画像をここにドロップするか、追加してください。並んだ順番のままPDFになります。画像は端末の外に送信されません。</p>
+              <button id="emptyAddButton" class="primary-button large" type="button">画像を追加</button>
             </div>
           </div>
           <div id="imageGrid" class="image-grid" aria-live="polite"></div>
+          <p class="grid-hint">
+            <span class="hint-wide">クリックで選択 · ドラッグで並べ替え · ダブルクリックでスキャン補正</span>
+            <span class="hint-narrow">タップで選択して、下のボタンで並べ替え・回転・補正</span>
+          </p>
         </section>
 
         <aside class="settings-panel">
-          <div class="panel-section">
-            <label class="field-label" for="fileName">ファイル名</label>
-            <input id="fileName" class="text-input" type="text" value="textbook.pdf" spellcheck="false" />
-          </div>
+          <details id="settingsDetails" class="settings" open>
+            <summary class="settings-summary">設定</summary>
+            <div class="settings-body">
+              <div class="panel-section">
+                <label class="field-label" for="fileName">ファイル名</label>
+                <input id="fileName" class="text-input" type="text" value="textbook.pdf" spellcheck="false" />
+              </div>
 
-          <div class="panel-section order-section">
-            <div class="field-row">
-              <label class="field-label" for="orderMode">並び順</label>
-              <span class="field-value">結合順</span>
+              <div class="panel-section">
+                <label class="field-label" for="orderMode">並び順</label>
+                <div class="inline-row">
+                  <select id="orderMode" class="select-input">
+                    <option value="name" selected>ファイル名順</option>
+                    <option value="import">追加した順</option>
+                    <option value="date-desc">日時が新しい順</option>
+                    <option value="date-asc">日時が古い順</option>
+                    <option value="manual">現在の順番</option>
+                  </select>
+                  <button id="reverseOrderButton" class="ghost-button" type="button" title="順番を反転">反転</button>
+                </div>
+              </div>
+
+              <div class="field-grid">
+                <div class="panel-section">
+                  <label class="field-label" for="pageSize">ページ</label>
+                  <select id="pageSize" class="select-input">
+                    <option value="a4-auto" selected>A4 自動</option>
+                    <option value="a4-portrait">A4 縦</option>
+                    <option value="a4-landscape">A4 横</option>
+                    <option value="image-fit">写真比率</option>
+                  </select>
+                </div>
+                <div class="panel-section">
+                  <label class="field-label" for="margin">余白</label>
+                  <select id="margin" class="select-input">
+                    <option value="0">0 mm</option>
+                    <option value="5" selected>5 mm</option>
+                    <option value="10">10 mm</option>
+                    <option value="15">15 mm</option>
+                  </select>
+                </div>
+                <div class="panel-section">
+                  <label class="field-label" for="fitMode">配置</label>
+                  <select id="fitMode" class="select-input">
+                    <option value="contain" selected>全体</option>
+                    <option value="cover">全面</option>
+                  </select>
+                </div>
+                <div class="panel-section">
+                  <label class="field-label" for="maxEdge">解像度</label>
+                  <select id="maxEdge" class="select-input">
+                    <option value="1800">標準</option>
+                    <option value="2400" selected>高画質</option>
+                    <option value="3200">細部</option>
+                    <option value="0">原寸</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="panel-section">
+                <div class="field-row">
+                  <label class="field-label" for="quality">画質</label>
+                  <span id="qualityValue" class="field-value">90%</span>
+                </div>
+                <input id="quality" class="slider" type="range" min="55" max="98" value="90" />
+              </div>
+
+              <button id="applyScanButton" class="ghost-button full" type="button" disabled>全画像を自動スキャン</button>
             </div>
-            <select id="orderMode" class="select-input">
-              <option value="name" selected>ファイル名順（自然）</option>
-              <option value="import">追加した順（保持）</option>
-              <option value="date-desc">ファイル日時が新しい順</option>
-              <option value="date-asc">ファイル日時が古い順</option>
-              <option value="manual">現在の順番</option>
-            </select>
-            <button id="reverseOrderButton" class="quiet-button" type="button">順番を反転</button>
-            <p class="field-hint">結合は左→右・上→下の順です。写真アプリが順番を変えて渡しても、ここで整えられます。</p>
-          </div>
+          </details>
 
-          <div class="panel-section">
-            <label class="field-label" for="pageSize">ページ</label>
-            <select id="pageSize" class="select-input">
-              <option value="a4-auto" selected>A4 自動</option>
-              <option value="a4-portrait">A4 縦</option>
-              <option value="a4-landscape">A4 横</option>
-              <option value="image-fit">写真比率</option>
-            </select>
-          </div>
-
-          <div class="panel-section">
-            <label class="field-label" for="margin">余白</label>
-            <select id="margin" class="select-input">
-              <option value="0">0 mm</option>
-              <option value="5" selected>5 mm</option>
-              <option value="10">10 mm</option>
-              <option value="15">15 mm</option>
-            </select>
-          </div>
-
-          <div class="panel-section">
-            <label class="field-label" for="fitMode">配置</label>
-            <select id="fitMode" class="select-input">
-              <option value="contain" selected>全体</option>
-              <option value="cover">全面</option>
-            </select>
-          </div>
-
-          <div class="panel-section">
-            <div class="field-row">
-              <label class="field-label" for="quality">画質</label>
-              <span id="qualityValue" class="field-value">90%</span>
-            </div>
-            <input id="quality" class="slider" type="range" min="55" max="98" value="90" />
-          </div>
-
-          <div class="panel-section">
-            <label class="field-label" for="maxEdge">解像度</label>
-            <select id="maxEdge" class="select-input">
-              <option value="1800">標準</option>
-              <option value="2400" selected>高画質</option>
-              <option value="3200">細部</option>
-              <option value="0">原寸</option>
-            </select>
-          </div>
-
-          <div class="panel-section">
-            <span class="field-label">スキャン</span>
-            <button id="scanSelectedButton" class="secondary-button" type="button" disabled>スキャンする</button>
-            <button id="applyScanButton" class="quiet-button" type="button" disabled>全画像を自動スキャン</button>
-          </div>
-
-          <div class="selected-box">
-            <p id="selectedName" class="selected-name">未選択</p>
-            <p id="selectedMeta" class="selected-meta">画像を追加できます</p>
-          </div>
-
-          <button id="createPdfButton" class="create-button" type="button" disabled>
-            <span aria-hidden="true">✦</span>
-            PDFを作成・保存
-          </button>
-          <div id="resultCard" class="result-card" hidden>
-            <div class="result-heading">
-              <span class="result-icon" aria-hidden="true">✓</span>
-              <div>
-                <p class="result-title">PDFの準備ができました</p>
-                <p id="resultMeta" class="result-meta"></p>
+          <div class="dock">
+            <div class="selected-bar">
+              <div class="selected-info">
+                <p id="selectedName" class="selected-name">未選択</p>
+                <p id="selectedMeta" class="selected-meta"></p>
+              </div>
+              <div class="selected-tools" role="toolbar" aria-label="選択中の画像">
+                <button id="selPrev" class="tool" type="button" title="前へ" aria-label="前へ" disabled>
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5" /></svg>
+                </button>
+                <button id="selNext" class="tool" type="button" title="後へ" aria-label="後へ" disabled>
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5" /></svg>
+                </button>
+                <button id="selRotL" class="tool" type="button" title="左回転" aria-label="左回転" disabled>
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8a6 6 0 1 1 0 4" /><path d="M4.5 4v4h4" /></svg>
+                </button>
+                <button id="selRotR" class="tool" type="button" title="右回転" aria-label="右回転" disabled>
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M15 8a6 6 0 1 0 0 4" /><path d="M15.5 4v4h-4" /></svg>
+                </button>
+                <button id="scanSelectedButton" class="tool" type="button" title="スキャン補正" aria-label="スキャン補正" disabled>
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4" /><path d="M6.5 10h7" /></svg>
+                </button>
+                <button id="selRemove" class="tool danger" type="button" title="削除" aria-label="削除" disabled>
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15" /></svg>
+                </button>
               </div>
             </div>
-            <button id="savePdfButton" class="save-button" type="button">ファイルに保存・共有</button>
-            <p class="field-hint">iPhone／iPadでは共有シートから「ファイルに保存」を選べます。</p>
+
+            <div class="dock-actions">
+              <button id="createPdfButton" class="primary-button full large" type="button" disabled>PDFを作成</button>
+              <div id="resultCard" class="result-card" hidden>
+                <p id="resultMeta" class="result-meta"></p>
+                <button id="savePdfButton" class="save-button" type="button">保存・共有</button>
+              </div>
+            </div>
+            <p id="status" class="status" role="status">待機中</p>
           </div>
-          <p id="status" class="status" role="status">待機中</p>
         </aside>
       </main>
     </div>
@@ -204,13 +209,19 @@
       <div class="add-sheet">
         <header class="add-header">
           <h2 id="addDialogTitle">画像を追加</h2>
-          <button id="addCloseButton" class="icon-button muted" type="button" title="閉じる" aria-label="閉じる">
+          <button id="addCloseButton" class="icon-button" type="button" title="閉じる" aria-label="閉じる">
             <span aria-hidden="true">×</span>
           </button>
         </header>
         <div class="add-options">
-          <button id="scanCaptureButton" class="add-option-button" type="button">スキャンする</button>
-          <button id="chooseFilesButton" class="add-option-button" type="button">写真・ファイルを選択</button>
+          <button id="scanCaptureButton" class="add-option-button" type="button">
+            <span class="option-title">カメラでスキャン</span>
+            <span class="option-sub">書類を撮影して取り込む</span>
+          </button>
+          <button id="chooseFilesButton" class="add-option-button" type="button">
+            <span class="option-title">写真・ファイルを選択</span>
+            <span class="option-sub">複数まとめて選べます</span>
+          </button>
         </div>
       </div>
     </div>
@@ -222,7 +233,7 @@
             <h2 id="scanTitle">スキャン</h2>
             <p id="scanFileName" class="scan-file-name">未選択</p>
           </div>
-          <button id="scanCloseButton" class="icon-button muted" type="button" title="閉じる" aria-label="閉じる">
+          <button id="scanCloseButton" class="icon-button" type="button" title="閉じる" aria-label="閉じる">
             <span aria-hidden="true">×</span>
           </button>
         </header>
@@ -234,10 +245,10 @@
             </div>
           </div>
           <aside class="scan-panel">
-            <button id="scanAutoButton" class="quiet-button" type="button">自動検出</button>
-            <button id="scanResetButton" class="quiet-button" type="button">全体を選択</button>
-            <button id="scanApplyButton" class="create-button" type="button">スキャンする</button>
-            <button id="scanCancelButton" class="quiet-button" type="button">キャンセル</button>
+            <button id="scanAutoButton" class="ghost-button full" type="button">自動検出</button>
+            <button id="scanResetButton" class="ghost-button full" type="button">全体を選択</button>
+            <button id="scanApplyButton" class="primary-button full" type="button">この範囲で補正</button>
+            <button id="scanCancelButton" class="ghost-button full" type="button">キャンセル</button>
           </aside>
         </div>
       </div>

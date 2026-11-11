@@ -43,6 +43,12 @@
     scanInput: document.querySelector("#scanInput"),
     scanSelectedButton: document.querySelector("#scanSelectedButton"),
     selectedMeta: document.querySelector("#selectedMeta"),
+    selNext: document.querySelector("#selNext"),
+    selPrev: document.querySelector("#selPrev"),
+    selRemove: document.querySelector("#selRemove"),
+    selRotL: document.querySelector("#selRotL"),
+    selRotR: document.querySelector("#selRotR"),
+    settingsDetails: document.querySelector("#settingsDetails"),
     selectedName: document.querySelector("#selectedName"),
     status: document.querySelector("#status"),
     summary: document.querySelector("#summary"),
@@ -131,25 +137,46 @@
       elements.resultMeta.textContent = state.lastPdf.fileName + " / " + bytesLabel(state.lastPdf.blob.size);
     }
     elements.emptyState.classList.toggle("is-hidden", imageCount > 0);
+    document.body.classList.toggle("has-items", imageCount > 0);
 
     elements.imageGrid.replaceChildren(
       ...state.items.map((item, index) => createThumbCard(item, index)),
     );
 
+    renderSelection();
+  }
+
+  function renderSelection() {
+    const imageCount = state.items.length;
     const selected = state.items.find((item) => item.id === state.selectedId);
+    const selectedIndex = selected ? state.items.indexOf(selected) : -1;
     elements.scanSelectedButton.disabled = state.busy || !selected;
+    elements.selPrev.disabled = state.busy || selectedIndex <= 0;
+    elements.selNext.disabled = state.busy || !selected || selectedIndex >= imageCount - 1;
+    elements.selRotL.disabled = state.busy || !selected;
+    elements.selRotR.disabled = state.busy || !selected;
+    elements.selRemove.disabled = state.busy || !selected;
     if (selected) {
-      elements.selectedName.textContent = selected.originalFile.name;
-      elements.selectedMeta.textContent = `${bytesLabel(selected.file.size)} / ${indexLabel(selected)} / ${selected.scanLabel}`;
+      elements.selectedName.textContent = `${formatter.format(selectedIndex + 1)}. ${selected.originalFile.name}`;
+      elements.selectedName.title = selected.originalFile.name;
+      elements.selectedMeta.textContent = `${bytesLabel(selected.file.size)} · ${selected.scanLabel}`;
     } else {
       elements.selectedName.textContent = "未選択";
-      elements.selectedMeta.textContent = "画像を追加できます";
+      elements.selectedName.title = "";
+      elements.selectedMeta.textContent = "";
     }
   }
 
-  function indexLabel(selected) {
-    const index = state.items.findIndex((item) => item.id === selected.id);
-    return `${formatter.format(index + 1)} / ${formatter.format(state.items.length)}枚目`;
+  // Update selection in place so thumbnail nodes survive (keeps dblclick and focus working).
+  function selectItem(id) {
+    if (state.selectedId === id) return;
+    state.selectedId = id;
+    elements.imageGrid.querySelectorAll(".thumb-card").forEach((card) => {
+      const isSelected = card.dataset.id === id;
+      card.classList.toggle("is-selected", isSelected);
+      card.setAttribute("aria-pressed", String(isSelected));
+    });
+    renderSelection();
   }
 
   function createThumbCard(item, index) {
@@ -158,11 +185,19 @@
     card.draggable = !state.busy;
     card.dataset.id = item.id;
     card.dataset.order = String(index + 1);
-    if (item.id === state.selectedId) card.classList.add("is-selected");
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-label", `${index + 1}枚目: ${item.originalFile.name}`);
+    const isSelected = item.id === state.selectedId;
+    card.classList.toggle("is-selected", isSelected);
+    card.setAttribute("aria-pressed", String(isSelected));
 
-    card.addEventListener("click", () => {
-      state.selectedId = item.id;
-      render();
+    card.addEventListener("click", () => selectItem(item.id));
+    card.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        selectItem(item.id);
+      }
     });
 
     card.addEventListener("dragstart", (event) => {
@@ -206,51 +241,24 @@
 
     imageWrap.append(image);
 
-    const details = document.createElement("div");
-    details.className = "thumb-details";
+    if (item.scanLabel && item.scanLabel !== "未スキャン") {
+      const badge = document.createElement("span");
+      badge.className = "thumb-badge";
+      badge.textContent = "補正済";
+      imageWrap.append(badge);
+    }
 
     const name = document.createElement("p");
     name.className = "thumb-name";
     name.textContent = item.originalFile.name;
     name.title = item.originalFile.name;
 
-    const meta = document.createElement("p");
-    meta.className = "thumb-meta";
-    meta.textContent = `${formatter.format(index + 1)} / ${formatter.format(state.items.length)}・${item.scanLabel}`;
-
-    const tools = document.createElement("div");
-    tools.className = "thumb-tools";
-    tools.append(
-      makeTool("↑", "前へ", () => moveItem(index, index - 1), state.busy || index === 0),
-      makeTool("↓", "後へ", () => moveItem(index, index + 1), state.busy || index === state.items.length - 1),
-      makeTool("□", "スキャン", () => {
-        state.selectedId = item.id;
-        render();
-        void openScanEditor(item.id);
-      }, state.busy),
-      makeTool("↶", "左回転", () => rotateItem(item.id, -90), state.busy),
-      makeTool("↷", "右回転", () => rotateItem(item.id, 90), state.busy),
-      makeTool("×", "削除", () => removeItem(item.id), state.busy, "danger"),
-    );
-
-    details.append(name, meta, tools);
-    card.append(imageWrap, details);
-    return card;
-  }
-
-  function makeTool(label, title, action, disabled = false, extraClass = "") {
-    const button = document.createElement("button");
-    button.className = `thumb-tool ${extraClass}`.trim();
-    button.type = "button";
-    button.textContent = label;
-    button.title = title;
-    button.setAttribute("aria-label", title);
-    button.disabled = disabled;
-    button.addEventListener("click", (event) => {
-      event.stopPropagation();
-      action();
+    card.addEventListener("dblclick", () => {
+      if (!state.busy) void openScanEditor(item.id);
     });
-    return button;
+
+    card.append(imageWrap, name);
+    return card;
   }
 
   function moveItem(fromIndex, toIndex) {
@@ -1466,7 +1474,7 @@
       } else if (saveMode === "saved") {
         setStatus(fileName + " を保存しました");
       } else if (saveMode === "cancelled") {
-        setStatus(fileName + " を準備しました（下のボタンから保存できます）");
+        setStatus(fileName + " を準備しました。「保存・共有」で保存できます");
       } else {
         setStatus(fileName + " をダウンロードしました");
       }
@@ -1832,6 +1840,15 @@
   elements.scanSelectedButton.addEventListener("click", () => {
     if (state.selectedId) void openScanEditor(state.selectedId);
   });
+  function withSelected(action) {
+    const index = state.items.findIndex((item) => item.id === state.selectedId);
+    if (index >= 0) action(index, state.items[index].id);
+  }
+  elements.selPrev.addEventListener("click", () => withSelected((i) => moveItem(i, i - 1)));
+  elements.selNext.addEventListener("click", () => withSelected((i) => moveItem(i, i + 1)));
+  elements.selRotL.addEventListener("click", () => withSelected((_, id) => rotateItem(id, -90)));
+  elements.selRotR.addEventListener("click", () => withSelected((_, id) => rotateItem(id, 90)));
+  elements.selRemove.addEventListener("click", () => withSelected((_, id) => removeItem(id)));
   elements.scanApplyButton.addEventListener("click", () => {
     void applyManualScan();
   });
@@ -1894,6 +1911,12 @@
 
   window.addEventListener("beforeunload", () => {
     state.items.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+  });
+
+  const compactQuery = window.matchMedia("(max-width: 860px)");
+  elements.settingsDetails.open = !compactQuery.matches;
+  compactQuery.addEventListener?.("change", (event) => {
+    elements.settingsDetails.open = !event.matches;
   });
 
   render();
